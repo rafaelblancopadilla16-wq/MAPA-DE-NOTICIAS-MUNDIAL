@@ -1,634 +1,114 @@
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Openemas | World News Map</title>
-
-<!-- Leaflet: mapa interactivo -->
-<link rel="stylesheet"
- href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-<style>
-:root {
-  --ink: #17232d;
-  --muted: #68747d;
-  --paper: #f7f6f2;
-  --white: #ffffff;
-  --line: #deded8;
-  --accent: #9b332d;
-  --blue: #263e50;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: Georgia, "Times New Roman", serif;
-}
-
-button, input, select {
-  font: inherit;
-}
-
-.topbar {
-  background: var(--white);
-  border-bottom: 1px solid var(--line);
-  padding: 18px 5%;
-}
-
-.brand {
-  font-size: 30px;
-  font-weight: bold;
-  letter-spacing: -1.5px;
-}
-
-.brand span {
-  color: var(--accent);
-}
-
-.brand-subtitle {
-  font: 10px Arial, sans-serif;
-  letter-spacing: 3px;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-.navigation {
-  display: flex;
-  gap: 24px;
-  border-top: 1px solid var(--line);
-  margin-top: 15px;
-  padding-top: 12px;
-  font: 11px Arial, sans-serif;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.navigation span:first-child {
-  color: var(--accent);
-  font-weight: bold;
-}
-
-.container {
-  max-width: 1450px;
-  margin: auto;
-  padding: 30px 5%;
-}
-
-.kicker {
-  color: var(--accent);
-  font: bold 11px Arial, sans-serif;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-}
-
-h1 {
-  font-size: clamp(34px, 5vw, 58px);
-  line-height: 1;
-  letter-spacing: -2px;
-  margin: 12px 0;
-}
-
-.intro {
-  color: var(--muted);
-  font: 14px/1.6 Arial, sans-serif;
-  max-width: 650px;
-}
-
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: end;
-  background: var(--white);
-  border: 1px solid var(--line);
-  padding: 17px;
-  margin: 28px 0 18px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  flex: 1;
-  min-width: 160px;
-}
-
-.field label {
-  font: bold 10px Arial, sans-serif;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.field input, .field select {
-  width: 100%;
-  height: 42px;
-  border: 1px solid var(--line);
-  background: #fff;
-  padding: 0 11px;
-  color: var(--ink);
-  font: 13px Arial, sans-serif;
-  border-radius: 0;
-}
-
-.action {
-  height: 42px;
-  padding: 0 20px;
-  border: 0;
-  background: var(--ink);
-  color: white;
-  cursor: pointer;
-  font: bold 11px Arial, sans-serif;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.action:hover {
-  background: var(--accent);
-}
-
-.workspace {
-  display: grid;
-  grid-template-columns: minmax(0, 1.5fr) minmax(310px, .8fr);
-  border: 1px solid var(--line);
-  background: var(--white);
-  min-height: 590px;
-}
-
-.map-section {
-  min-width: 0;
-  border-right: 1px solid var(--line);
-}
-
-.section-heading {
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-}
-
-.section-heading h2 {
-  font-size: 19px;
-  margin: 0;
-}
-
-.section-heading small {
-  font: 10px Arial, sans-serif;
-  color: var(--muted);
-}
-
-#map {
-  width: 100%;
-  height: 520px;
-  background: #e9edf0;
-  z-index: 1;
-}
-
-.map-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  padding: 13px 20px;
-  font: 10px Arial, sans-serif;
-  color: var(--muted);
-}
-
-.legend-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 5px;
-}
-
-.news-panel {
-  min-width: 0;
-}
-
-.country-title {
-  padding: 23px 20px;
-  background: var(--blue);
-  color: white;
-}
-
-.country-title small {
-  font: 10px Arial, sans-serif;
-  letter-spacing: 2px;
-  color: #c8d2d9;
-  text-transform: uppercase;
-}
-
-.country-title h2 {
-  margin: 8px 0 0;
-  font-size: 29px;
-}
-
-.news-meta {
-  padding: 13px 20px;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  justify-content: space-between;
-  font: 10px Arial, sans-serif;
-  color: var(--muted);
-}
-
-.news-list {
-  padding: 0 20px;
-}
-
-.news-item {
-  padding: 20px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.news-category {
-  font: bold 10px Arial, sans-serif;
-  color: var(--accent);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-.news-item h3 {
-  font-size: 19px;
-  line-height: 1.25;
-  margin: 9px 0;
-}
-
-.news-item p {
-  color: var(--muted);
-  font: 12px/1.6 Arial, sans-serif;
-  margin: 0 0 12px;
-}
-
-.news-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  align-items: center;
-  font: 10px Arial, sans-serif;
-  color: var(--muted);
-}
-
-.news-footer a {
-  color: var(--accent);
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.news-footer a:hover {
-  text-decoration: underline;
-}
-
-.empty {
-  padding: 35px 0;
-  color: var(--muted);
-  font: 13px/1.6 Arial, sans-serif;
-}
-
-.disclaimer {
-  font: 11px/1.6 Arial, sans-serif;
-  color: var(--muted);
-  padding: 15px 0;
-}
-
-footer {
-  background: var(--ink);
-  color: white;
-  padding: 25px 5%;
-  font: 11px Arial, sans-serif;
-  letter-spacing: 1px;
-}
-
-.leaflet-popup-content-wrapper {
-  border-radius: 0;
-  font-family: Arial, sans-serif;
-}
-
-@media (max-width: 850px) {
-  .workspace {
-    grid-template-columns: 1fr;
-  }
-
-  .map-section {
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
-  }
-
-  #map {
-    height: 380px;
-  }
-
-  .container {
-    padding: 25px 4%;
-  }
-}
-
-@media (max-width: 480px) {
-  .navigation {
-    gap: 12px;
-    font-size: 9px;
-  }
-
-  .filters {
-    padding: 12px;
-  }
-
-  .field {
-    min-width: 100%;
-  }
-
-  .action {
-    width: 100%;
-  }
-}
-</style>
-</head>
-
-<body>
-
-<header class="topbar">
-  <div class="brand">OPEN<span>EMAS</span></div>
-  <div class="brand-subtitle">
-    INTERNATIONAL NEWS & WORLD AFFAIRS
-  </div>
-
-  <nav class="navigation">
-    <span>World News Map</span>
-    <span>Politics</span>
-    <span>Economy</span>
-    <span>Society</span>
-    <span>Analysis</span>
-  </nav>
-</header>
-
-<main class="container">
-
-  <div class="kicker">The world, in context</div>
-
-  <h1>Explore the world's<br>most relevant news.</h1>
-
-  <p class="intro">
-    Select a country on the map, choose a date and discover
-    the most relevant international developments.
-  </p>
-
-  <!-- BUSCADOR Y FILTROS -->
-
-  <section class="filters">
-
-    <div class="field">
-      <label for="countrySearch">Search country</label>
-      <input
-        id="countrySearch"
-        list="countryOptions"
-        placeholder="e.g. Spain, Japan, Brazil..."
-      >
-      <datalist id="countryOptions"></datalist>
-    </div>
-
-    <div class="field">
-      <label for="newsDate">Publication date</label>
-      <input type="date" id="newsDate">
-    </div>
-
-    <div class="field">
-      <label for="category">News category</label>
-      <select id="category">
-        <option value="all">All categories</option>
-        <option value="Politics">Politics</option>
-        <option value="Economy">Economy</option>
-        <option value="Conflict">Conflict</option>
-        <option value="Society">Society</option>
-        <option value="Science">Science & Technology</option>
-      </select>
-    </div>
-
-    <button class="action" id="searchButton">
-      Explore
-    </button>
-
-  </section>
-
-  <!-- MAPA Y NOTICIAS -->
-
-  <section class="workspace">
-
-    <div class="map-section">
-
-      <div class="section-heading">
-        <h2>World map</h2>
-        <small>SELECT A COUNTRY</small>
-      </div>
-
-      <div id="map"></div>
-
-      <div class="map-legend">
-        <span>
-          <i class="legend-dot" style="background:#9b332d"></i>
-          Selected country
-        </span>
-        <span>
-          <i class="legend-dot" style="background:#78909c"></i>
-          Other countries
-        </span>
-      </div>
-
-    </div>
-
-    <aside class="news-panel">
-
-      <div class="country-title">
-        <small>Selected territory</small>
-        <h2 id="selectedCountry">Select a country</h2>
-      </div>
-
-      <div class="news-meta">
-        <span id="dateLabel">DATE</span>
-        <span id="newsCount">0 STORIES</span>
-      </div>
-
-      <div class="news-list" id="newsList">
-        <div class="empty">
-          Click on a country on the map or search its name
-          to explore its news.
-        </div>
-      </div>
-
-    </aside>
-
-  </section>
-
-  <p class="disclaimer" id="dataNotice">
-    Demonstration mode: sample editorial content is displayed.
-    It is not verified real-world news.
-  </p>
-
-</main>
-
-<footer>
-  OPENEMAS — INTERNATIONAL NEWS & WORLD AFFAIRS
-</footer>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<script>
-
-// ======================================
-// 1. CONFIGURATION
-// ======================================
-
-// Add your news API endpoint here later.
-// Recommended: connect through your own backend.
-const NEWS_API_URL = "";
-
-const today = new Date();
-const localToday = [
-  today.getFullYear(),
-  String(today.getMonth() + 1).padStart(2, "0"),
-  String(today.getDate()).padStart(2, "0")
-].join("-");
-
-document.getElementById("newsDate").value = localToday;
-
-// ======================================
-// 2. DEMONSTRATION NEWS
-// ======================================
-
-// These entries are illustrative examples.
-// Replace them with verified API results.
-
-const demoNews = {
-  "Spain": [
-    {
-      category: "Politics",
-      title: "Example: Political developments in Spain",
-      summary: "Illustrative editorial entry about national political developments.",
-      source: "Openemas Demo",
-      url: ""
-    },
-    {
-      category: "Economy",
-      title: "Example: Economic outlook and markets",
-      summary: "Illustrative entry about the Spanish economic environment.",
-      source: "Openemas Demo",
-      url: ""
-    }
-  ],
-  "United States of America": [
-    {
-      category: "Politics",
-      title: "Example: Political agenda in Washington",
-      summary: "Illustrative entry about political developments in the United States.",
-      source: "Openemas Demo",
-      url: ""
-    },
-    {
-      category: "Economy",
-      title: "Example: Markets and economic policy",
-      summary: "Illustrative entry about economic developments.",
-      source: "Openemas Demo",
-      url: ""
-    }
-  ],
-  "China": [
-    {
-      category: "Economy",
-      title: "Example: China's economic outlook",
-      summary: "Illustrative entry about economic and trade developments.",
-      source: "Openemas Demo",
-      url: ""
-    },
-    {
-      category: "Science",
-      title: "Example: Science and technology developments",
-      summary: "Illustrative entry about innovation and technology.",
-      source: "Openemas Demo",
-      url: ""
-    }
-  ],
-  "France": [
-    {
-      category: "Society",
-      title: "Example: Social developments in France",
-      summary: "Illustrative entry about social affairs and public debate.",
-      source: "Openemas Demo",
-      url: ""
-    }
-  ],
-  "Brazil": [
-    {
-      category: "Environment",
-      title: "Example: Environmental developments in Brazil",
-      summary: "Illustrative entry about environmental issues.",
-      source: "Openemas Demo",
-      url: ""
-    }
-  ]
+// ============================================
+// OPENEMAS WORLD NEWS — REAL NEWS ENGINE
+// GDELT DOC 2.0
+// ============================================
+
+const GDELT_API =
+  "https://api.gdeltproject.org/api/v2/doc/doc";
+
+// Optional: your own backend for AI summaries.
+// Never put private API keys in this public file.
+const SUMMARY_API_URL = "";
+
+// Country name adjustments for search.
+const countryAliases = {
+  "United States of America": "United States",
+  "Russian Federation": "Russia",
+  "Türkiye": "Turkey",
+  "Korea, Republic of": "South Korea",
+  "Democratic People's Republic of Korea": "North Korea",
+  "Iran (Islamic Republic of)": "Iran",
+  "Syrian Arab Republic": "Syria",
+  "Viet Nam": "Vietnam",
+  "Côte d'Ivoire": "Ivory Coast",
+  "Czechia": "Czech Republic"
 };
 
-// ======================================
-// 3. MAP INITIALIZATION
-// ======================================
+// Categories: search terms used by GDELT.
+const categoryTerms = {
+  Politics: '(politics OR government OR election OR parliament)',
+  Economy: '(economy OR business OR trade OR inflation OR markets)',
+  Conflict: '(war OR conflict OR military OR attack OR security)',
+  Society: '(society OR protests OR education OR health)',
+  Science: '(science OR technology OR research OR innovation)',
+  Environment: '(climate OR environment OR pollution OR energy)'
+};
+
+let selectedCountry = null;
+let countryLayer = null;
+let selectedLayer = null;
+let countries = [];
+let currentRequest = 0;
+
+// ============================================
+// DATE UTILITIES
+// ============================================
+
+function formatGdeltDate(date, end = false) {
+  const compact = date.replaceAll("-", "");
+  return compact + (end ? "235959" : "000000");
+}
+
+function formatPublicationDate(value) {
+  if (!value) return "Date unavailable";
+
+  const match = value.match(
+    /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z?$/
+  );
+
+  if (!match) return value;
+
+  const [, year, month, day, hour, minute] = match;
+
+  return `${day}/${month}/${year} · ${hour}:${minute} UTC`;
+}
+
+function isWithinRecentWindow(date) {
+  const chosen = new Date(date + "T00:00:00Z");
+  const now = new Date();
+
+  const earliest = new Date(now);
+  earliest.setUTCMonth(earliest.getUTCMonth() - 3);
+
+  return chosen >= earliest && chosen <= now;
+}
+
+// ============================================
+// MAP
+// ============================================
 
 const map = L.map("map", {
   center: [25, 0],
   zoom: 2,
   minZoom: 2,
-  maxZoom: 7,
-  worldCopyJump: true
+  maxZoom: 7
 });
 
 L.tileLayer(
   "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png",
   {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    maxZoom: 19
+    attribution:
+      '&copy; OpenStreetMap contributors &copy; CARTO'
   }
 ).addTo(map);
 
-// ======================================
-// 4. COUNTRY DATA
-// ======================================
-
-let countryLayer;
-let countries = [];
-let selectedCountry = null;
-let selectedLayer = null;
-
 function countryName(feature) {
   const p = feature.properties || {};
-  return p.ADMIN || p.name || p.NAME || p.name_en || "Unknown";
+  return p.ADMIN || p.name || p.NAME || "Unknown";
 }
 
 function countryStyle() {
   return {
-    color: "#ffffff",
+    color: "#fff",
     weight: 0.7,
     fillColor: "#78909c",
     fillOpacity: 0.48
   };
 }
 
-function selectedStyle() {
-  return {
-    color: "#ffffff",
-    weight: 1.5,
-    fillColor: "#9b332d",
-    fillOpacity: 0.85
-  };
-}
-
 function selectCountry(name, layer) {
-
-  if (selectedLayer) {
+  if (selectedLayer && countryLayer) {
     countryLayer.resetStyle(selectedLayer);
   }
 
@@ -636,54 +116,56 @@ function selectCountry(name, layer) {
   selectedLayer = layer;
 
   if (layer) {
-    layer.setStyle(selectedStyle());
+    layer.setStyle({
+      color: "#fff",
+      weight: 1.5,
+      fillColor: "#9b332d",
+      fillOpacity: 0.85
+    });
+
     map.fitBounds(layer.getBounds(), {
-      padding: [30, 30],
+      padding: [25, 25],
       maxZoom: 5
     });
   }
 
   document.getElementById("selectedCountry").textContent = name;
+  document.getElementById("countrySearch").value = name;
 
-  renderNews();
+  loadRealNews();
 }
 
-// ======================================
-// 5. LOAD WORLD GEOJSON
-// ======================================
+// ============================================
+// LOAD COUNTRY BOUNDARIES
+// ============================================
 
 async function loadCountries() {
-
   const url =
     "https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson";
 
   try {
-
     const response = await fetch(url);
 
     if (!response.ok) {
-      throw new Error("Could not load country data");
+      throw new Error("Country data unavailable");
     }
 
     const geojson = await response.json();
-
     countries = geojson.features;
 
     countryLayer = L.geoJSON(geojson, {
-
       style: countryStyle,
 
-      onEachFeature: function(feature, layer) {
-
+      onEachFeature(feature, layer) {
         const name = countryName(feature);
 
         layer.bindTooltip(name);
 
-        layer.on("click", function() {
+        layer.on("click", () => {
           selectCountry(name, layer);
         });
 
-        layer.on("mouseover", function() {
+        layer.on("mouseover", () => {
           if (layer !== selectedLayer) {
             layer.setStyle({
               fillColor: "#b8a08d",
@@ -692,85 +174,68 @@ async function loadCountries() {
           }
         });
 
-        layer.on("mouseout", function() {
+        layer.on("mouseout", () => {
           if (layer !== selectedLayer) {
             countryLayer.resetStyle(layer);
           }
         });
-
       }
-
     }).addTo(map);
 
-    populateCountrySearch();
+    const datalist = document.getElementById("countryOptions");
 
-  } catch(error) {
+    datalist.innerHTML = countries
+      .map(countryName)
+      .filter(name => name !== "Unknown")
+      .sort()
+      .map(name =>
+        `<option value="${escapeHTML(name)}"></option>`
+      )
+      .join("");
 
+  } catch (error) {
     console.error(error);
-
-    document.getElementById("newsList").innerHTML =
-      '<div class="empty">The map could not be loaded. Please check your internet connection and try again.</div>';
-
+    showMessage("The world map could not be loaded.");
   }
-
 }
 
-// ======================================
-// 6. COUNTRY SEARCH
-// ======================================
-
-function populateCountrySearch() {
-
-  const datalist = document.getElementById("countryOptions");
-
-  const names = countries
-    .map(countryName)
-    .filter(name => name !== "Unknown")
-    .sort();
-
-  datalist.innerHTML = names
-    .map(name => `<option value="${escapeHTML(name)}"></option>`)
-    .join("");
-
-}
+// ============================================
+// SEARCH COUNTRY
+// ============================================
 
 function searchCountry() {
-
   const query = document
     .getElementById("countrySearch")
-    .value
-    .trim()
-    .toLowerCase();
+    .value.trim().toLowerCase();
 
   const feature = countries.find(item =>
     countryName(item).toLowerCase() === query
   );
 
   if (!feature) {
-    alert("Country not found. Please select a country from the list.");
+    showMessage("Please select a valid country.");
     return;
   }
 
-  let foundLayer = null;
+  let targetLayer = null;
 
   countryLayer.eachLayer(layer => {
     if (countryName(layer.feature) === countryName(feature)) {
-      foundLayer = layer;
+      targetLayer = layer;
     }
   });
 
-  if (foundLayer) {
-    selectCountry(countryName(feature), foundLayer);
+  if (targetLayer) {
+    selectCountry(countryName(feature), targetLayer);
   }
-
 }
 
-// ======================================
-// 7. NEWS RENDERING
-// ======================================
+// ============================================
+// HTML SECURITY
+// ============================================
 
 function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, char => ({
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
@@ -779,141 +244,269 @@ function escapeHTML(value) {
   })[char]);
 }
 
-function renderNews() {
+function safeArticleURL(value) {
+  try {
+    const url = new URL(value);
 
+    if (url.protocol === "https:" || url.protocol === "http:") {
+      return escapeHTML(url.href);
+    }
+  } catch (error) {}
+
+  return "";
+}
+
+// ============================================
+// SEARCH REAL NEWS
+// ============================================
+
+async function loadRealNews() {
   if (!selectedCountry) return;
+
+  const requestId = ++currentRequest;
 
   const date = document.getElementById("newsDate").value;
   const category = document.getElementById("category").value;
 
-  const list = document.getElementById("newsList");
-
-  const stories = demoNews[selectedCountry] || [];
-
-  const filtered = stories.filter(story =>
-    category === "all" || story.category === category
-  );
-
-  document.getElementById("dateLabel").textContent =
-    date || "DATE";
-
-  document.getElementById("newsCount").textContent =
-    filtered.length + " STORIES";
-
-  if (filtered.length === 0) {
-
-    list.innerHTML = `
-      <div class="empty">
-        No demonstration stories are available for this country
-        and category. Connect a news API to retrieve real articles.
-      </div>
-    `;
-
+  if (!date) {
+    showMessage("Please select a date.");
     return;
   }
 
-  list.innerHTML = filtered.map(story => {
+  document.getElementById("dateLabel").textContent = date;
+  document.getElementById("newsCount").textContent = "SEARCHING...";
 
-    const safeTitle = escapeHTML(story.title);
-    const safeSummary = escapeHTML(story.summary);
-    const safeCategory = escapeHTML(story.category);
-    const safeSource = escapeHTML(story.source);
+  showMessage("Searching real international news sources...");
 
-    const link = story.url
-      ? `<a href="${escapeHTML(story.url)}" target="_blank" rel="noopener noreferrer">READ ARTICLE ↗</a>`
-      : `<span>DEMO CONTENT</span>`;
-
-    return `
-      <article class="news-item">
-
-        <div class="news-category">
-          ${safeCategory}
-        </div>
-
-        <h3>${safeTitle}</h3>
-
-        <p>${safeSummary}</p>
-
-        <div class="news-footer">
-          <span>${safeSource}</span>
-          ${link}
-        </div>
-
-      </article>
-    `;
-
-  }).join("");
-
-}
-
-// ======================================
-// 8. FUTURE API CONNECTION
-// ======================================
-
-async function fetchRealNews(country, date, category) {
-
-  if (!NEWS_API_URL) {
-    return null;
+  if (!isWithinRecentWindow(date)) {
+    showMessage(
+      "GDELT's article search has a rolling window of approximately three months. This date is outside the supported period."
+    );
+    return;
   }
 
+  const country =
+    countryAliases[selectedCountry] || selectedCountry;
+
+  const categoryQuery =
+    category === "all" ? "" : " " + categoryTerms[category];
+
+  const query = `"${country}"${categoryQuery}`;
+
   const params = new URLSearchParams({
-    country,
-    date,
-    category
+    query,
+    mode: "ArtList",
+    format: "json",
+    maxrecords: "50",
+    sort: "HybridRel",
+    startdatetime: formatGdeltDate(date),
+    enddatetime: formatGdeltDate(date, true)
   });
 
   try {
-
     const response = await fetch(
-      `${NEWS_API_URL}?${params.toString()}`
+      `${GDELT_API}?${params.toString()}`
     );
 
     if (!response.ok) {
-      throw new Error("News API error");
+      throw new Error(
+        response.status === 429
+          ? "GDELT rate limit reached. Please wait before trying again."
+          : `GDELT returned HTTP ${response.status}`
+      );
+    }
+
+    const contentType = response.headers.get("content-type") || "";
+
+    if (!contentType.includes("json")) {
+      throw new Error("The news service did not return valid JSON.");
     }
 
     const data = await response.json();
 
-    return data.articles || [];
+    if (requestId !== currentRequest) return;
 
-  } catch(error) {
+    const articles = data.articles || [];
 
-    console.error("News API:", error);
-    return null;
+    renderRealNews(articles, requestId);
 
+  } catch (error) {
+    if (requestId !== currentRequest) return;
+
+    console.error("Openemas news error:", error);
+
+    document.getElementById("newsCount").textContent = "ERROR";
+
+    showMessage(
+      "We could not retrieve the news right now. " + error.message
+    );
   }
-
 }
 
-// ======================================
-// 9. EVENT LISTENERS
-// ======================================
+// ============================================
+// OPTIONAL EDITORIAL SUMMARY SERVICE
+// ============================================
 
-document
-  .getElementById("searchButton")
+async function getEditorialSummary(article) {
+  if (!SUMMARY_API_URL) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(SUMMARY_API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title: article.title,
+        url: article.url,
+        source: article.domain
+      })
+    });
+
+    if (!response.ok) return null;
+
+    const result = await response.json();
+
+    return result.summary || null;
+
+  } catch (error) {
+    console.error("Summary service:", error);
+    return null;
+  }
+}
+
+// ============================================
+// DISPLAY REAL ARTICLES
+// ============================================
+
+async function renderRealNews(articles, requestId) {
+  const list = document.getElementById("newsList");
+
+  document.getElementById("newsCount").textContent =
+    articles.length + " ARTICLES";
+
+  if (!articles.length) {
+    showMessage(
+      "No matching articles were found for this country and date. Try another date or category."
+    );
+    return;
+  }
+
+  const unique = [];
+  const seen = new Set();
+
+  for (const article of articles) {
+    const url = safeArticleURL(article.url);
+    const title = (article.title || "").trim();
+
+    if (!url || !title) continue;
+
+    const key = url.toLowerCase();
+
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    unique.push(article);
+  }
+
+  list.innerHTML = "";
+
+  if (!unique.length) {
+    showMessage("No valid article links were returned.");
+    return;
+  }
+
+  for (const article of unique) {
+    if (requestId !== currentRequest) return;
+
+    const articleURL = safeArticleURL(article.url);
+    const title = escapeHTML(article.title);
+    const source = escapeHTML(article.domain || "Source unavailable");
+    const published = formatPublicationDate(article.seendate);
+
+    const item = document.createElement("article");
+    item.className = "news-item";
+
+    item.innerHTML = `
+      <div class="news-category">ORIGINAL NEWS REPORT</div>
+
+      <h3>${title}</h3>
+
+      <div class="news-footer">
+        <span>${source}</span>
+        <span>${escapeHTML(published)}</span>
+      </div>
+
+      <p class="editorial-summary">
+        <strong>EDITORIAL SUMMARY:</strong>
+        <span class="summary-text">
+          Summary pending editorial processing.
+          No summary has been generated or verified yet.
+        </span>
+      </p>
+
+      <div class="news-footer">
+        <span>Original publication</span>
+        <a href="${articleURL}"
+           target="_blank"
+           rel="noopener noreferrer">
+          READ ORIGINAL ARTICLE ↗
+        </a>
+      </div>
+    `;
+
+    list.appendChild(item);
+
+    // Only populate this field when a real summary
+    // service has been configured on your backend.
+    const summary = await getEditorialSummary(article);
+
+    if (requestId !== currentRequest) return;
+
+    if (summary) {
+      const summaryElement = item.querySelector(".summary-text");
+      summaryElement.textContent = summary;
+    }
+  }
+
+  document.getElementById("dataNotice").textContent =
+    "News results supplied by GDELT DOC 2.0. Headlines and article links belong to their original publishers. Editorial summaries are shown only when generated by the configured summary service.";
+}
+
+// ============================================
+// INTERFACE HELPERS
+// ============================================
+
+function showMessage(message) {
+  document.getElementById("newsList").innerHTML = `
+    <div class="empty">${escapeHTML(message)}</div>
+  `;
+
+  document.getElementById("newsCount").textContent = "—";
+}
+
+// ============================================
+// EVENTS
+// ============================================
+
+document.getElementById("searchButton")
   .addEventListener("click", searchCountry);
 
-document
-  .getElementById("countrySearch")
+document.getElementById("countrySearch")
   .addEventListener("keydown", event => {
     if (event.key === "Enter") searchCountry();
   });
 
-document
-  .getElementById("category")
-  .addEventListener("change", renderNews);
+document.getElementById("category")
+  .addEventListener("change", loadRealNews);
 
-document
-  .getElementById("newsDate")
-  .addEventListener("change", renderNews);
+document.getElementById("newsDate")
+  .addEventListener("change", loadRealNews);
 
-// ======================================
-// 10. START
-// ======================================
+// ============================================
+// START
+// ============================================
 
 loadCountries();
-
-</script>
-
-</body>
-</html>
